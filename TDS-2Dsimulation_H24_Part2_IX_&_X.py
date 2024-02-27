@@ -31,8 +31,8 @@ k = 1.4E-23 # Boltzmann constant
 T = 300 # around room temperature
 
 # Composantes du champ uniforme (respecté pas plus haut que 1e-4 sinon parfois il y a des sorties du cadre)
-dpx = 1e-4
-dpy = 1e-4
+dpx = 2e-4
+dpy = 0
 
 #### CANEVAS DE FOND ####
 L = 1 # container is a cube L on a side
@@ -103,7 +103,7 @@ def checkCollisions():
 liste_p_moyenne = []
 
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
-for i in range(500):
+for i in range(1000):
     rate(300)
 
     # Calculer les magnitudes des vecteurs

@@ -31,8 +31,19 @@ k = 1.4E-23 # Boltzmann constant
 T = 300 # around room temperature
 
 # Composantes du champ uniforme (respecté pas plus haut que 1e-4 sinon parfois il y a des sorties du cadre)
-dpx = 2e-4
-dpy = 0
+
+def acceletationChamp(pos):
+    """
+    Sachant que F = (k * q_1 *q_2 )/r^2 = m * a
+    où a = Delta_v/dt on obtient la vitesse à ajouté en plus à chaque dt selon:
+    Delta_v = ( ( k * q_1 *q_2 )/r^2 ) * ( dt/m )
+    return : la différence de vitesse qui, multipliée au dt donnera le déplacement supplémentaire causé par le champ
+    """
+    k_c = 9e9 # Constante de Coulomb
+    q_1 = -1.602e-19 # charge d'un électron
+    q_2 = 1e-13# charge du mur
+    x = pos.x
+    return ( ( k_c * q_1 *q_2 )/((x-(L/2+Ratom))**2) ) * ( dt/mass )
 
 #### CANEVAS DE FOND ####
 L = 1 # container is a cube L on a side
@@ -117,9 +128,10 @@ for i in range(1000):
     for i in range(Natoms):
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
         # Ajout du champ E uniforme de module ajustable
-        champ_E_uniforme = vector(dpx,dpy,0)
-        deltax.append(vitesse[i] * dt + champ_E_uniforme) # différence avant pour calculer l'incrément de position
+        champ_E_uniforme = vector(acceletationChamp(apos[i]),0,0)
+        deltax.append(vitesse[i] * dt + champ_E_uniforme * dt) # différence avant pour calculer l'incrément de position
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
+
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):
         loc = apos[i]

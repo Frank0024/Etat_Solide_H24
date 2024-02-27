@@ -19,7 +19,7 @@ import random as rd
 from scipy.stats import maxwell
 from scipy.optimize import curve_fit
 
-
+meanPos = []
 # Déclaration de variables influençant le temps d'exécution de la simulation
 Natoms = 100  # change this to have more or fewer atoms
 dt = 1E-7  # pas d'incrémentation temporel
@@ -103,9 +103,8 @@ def checkCollisions():
 liste_p_moyenne = []
 
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
-for i in range(2000):
+for i in range(500):
     rate(300)
-    print(dt)
 
     # Calculer les magnitudes des vecteurs
     p_norm = [mag(vecteur) for vecteur in p]
@@ -153,3 +152,10 @@ for i in range(2000):
         # Nouvelle position pour évité les doublons de collision
         apos[i] = vector(2*Ratom*cos(phi), 2*Ratom*sin(phi), 0) + npos[j]
 
+    Xs = []
+    Ys = []
+    for i in apos:
+        Xs.append(i.x)
+        Ys.append(i.y)
+    meanPos.append((np.mean(Xs),np.mean(Ys)))
+print(meanPos)

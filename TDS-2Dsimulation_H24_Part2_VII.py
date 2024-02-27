@@ -38,7 +38,7 @@ from scipy.optimize import curve_fit
 #    return maxwell[rd.randint(0,len(maxwell)-1)]
 
 # Déclaration de variables influençant le temps d'exécution de la simulation
-Natoms = 100  # change this to have more or fewer atoms
+Natoms = 200  # change this to have more or fewer atoms
 dt = 1E-7  # pas d'incrémentation temporel
 
 mass = 9.109e-31 # Pour le choix de la distribution de maxwell
@@ -90,7 +90,7 @@ for i in range(Natoms):
 # Génération des noyaux
 npos = []
 Noyaux = []
-steps = [0.3,0.1,-0.1,-0.3]
+steps = [0.5,0.3,0.1,-0.1,-0.3,-0.5]
 for i, x in enumerate(steps):
     for j, y in enumerate(steps):
         Noyaux.append(simple_sphere(pos=vector(x,y,0), radius=0.03, color=color.green))
@@ -118,6 +118,7 @@ def checkCollisions():
 
 
 liste_p_moyenne = []
+liste_p_electron = []
 
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
 for i in range(2000):
@@ -126,7 +127,8 @@ for i in range(2000):
     # Calculer les magnitudes des vecteurs
     p_norm = [mag(vecteur) for vecteur in p]
     pavg = np.mean(p_norm)
-    liste_p_moyenne.append(pavg) 
+    liste_p_moyenne.append(pavg)
+    liste_p_electron.append(mag(p[0])) 
 
     #### DÉPLACE TOUTES LES SPHÈRES D'UN PAS SPATIAL deltax
     vitesse = []   # vitesse instantanée de chaque sphère
@@ -148,7 +150,6 @@ for i in range(2000):
 
     #### LET'S FIND THESE COLLISIONS!!! ####
     hitlist = checkCollisions()
-
     T = (pavg**2)/(3 * mass * k)
     
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS ENTRE SPHÈRES ####
@@ -179,12 +180,23 @@ p0_fit, tau_fit = popt
 p_fit = exponential_fit(t_data, p0_fit, tau_fit)
 
 # Graphique
-plt.plot(t_data, liste_p_moyenne, label='p(t)')
-plt.plot(t_data, p_fit, label=f'Fit exponentiel (τ ={(tau_fit * dt):.5f})', color='red')
+plt.subplot(2,1,1)
+plt.plot(t_data, liste_p_moyenne, label='p(t)', color='black')
+plt.plot(t_data, p_fit, label=f'Fit exponentiel (τ ={(tau_fit * dt):.5f})', color='red', linestyle='--')
 plt.xlabel('Temps [10e-7 s]')
-plt.ylabel('Quantité de mouvement moyenne [kg m/s]')
-plt.title('Quantité de mouvement moyenne des électrons en fonction du temps')
+plt.ylabel('p moyenne [kg m/s]')
+plt.title('p moyenne des électrons en fonction du temps')
 plt.legend()
 plt.grid(True)
-plt.show()
 
+plt.subplot(2,1,2)
+plt.plot(t_data, liste_p_electron, label='p(t)', color='black')
+plt.xlabel('Temps [10e-7 s]')
+plt.ylabel("p d'un électron [kg m/s]")
+plt.title("p d'un électron en fonction du temps")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+
+plt.show()

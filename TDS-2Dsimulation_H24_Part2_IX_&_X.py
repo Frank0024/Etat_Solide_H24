@@ -105,6 +105,7 @@ liste_p_moyenne = []
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
 for i in range(2000):
     rate(300)
+    print(dt)
 
     # Calculer les magnitudes des vecteurs
     p_norm = [mag(vecteur) for vecteur in p]
@@ -115,11 +116,11 @@ for i in range(2000):
     vitesse = []   # vitesse instantanée de chaque sphère
     deltax = []  # pas de position de chaque sphère correspondant à l'incrément de temps dt
     for i in range(Natoms):
-        champE_uniforme = vector(dpx,dpy,0)
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
-        deltax.append(vitesse[i] * dt + champE_uniforme) # différence avant pour calculer l'incrément de position
+        # Ajout du champ E uniforme de module ajustable
+        champ_E_uniforme = vector(dpx,dpy,0)
+        deltax.append(vitesse[i] * dt + champ_E_uniforme) # différence avant pour calculer l'incrément de position
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
-    # print(vitesse[0])
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):
         loc = apos[i]

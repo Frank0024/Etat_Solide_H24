@@ -16,27 +16,13 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import random as rd
+from scipy.stats import maxwell
+from scipy.optimize import curve_fit
 
-def maxwell_distribution(v,m,t):
-    # Génère une distribution de maxwell selon le script: https://ballen95.pythonanywhere.com/Week2-Notebook/
-    data = []
-    vx = []
-    r = 8.31446261815324 # J / (mol * K)
-    distribution = (4.*np.pi * ((m / (2 * np.pi * r * t))**1.5) * (v**2) * np.exp(- (m * v**2)/(2 * r * t)))
-    distribution = (np.array(distribution)/np.amax(distribution))*(2**8)
-    distribution = distribution.astype("uint16")
-    for i, x in enumerate(v):
-        data += [x]*distribution[i]
-    return data
-
-def random_maxwell(maxwell):
-    # Petit hic, je dois adapté l'ordre de grandeur pour que ça fonctionne, la distribution est défini par le gaz ET la température
-    # Retourne une valeur de vitesse aléatoire selon la distribution de maxwell préalablement choisie.
-    return maxwell[rd.randint(0,len(maxwell)-1)]
 
 # Déclaration de variables influençant le temps d'exécution de la simulation
 Natoms = 100  # change this to have more or fewer atoms
-dt = 1E-5  # pas d'incrémentation temporel
+dt = 1E-7  # pas d'incrémentation temporel
 
 mass = 9.109e-31 # Pour le choix de la distribution de maxwell
 
@@ -47,10 +33,6 @@ T = 300 # around room temperature
 # Composantes du champ uniforme (respecté pas plus haut que 1e-4 sinon parfois il y a des sorties du cadre)
 dpx = 1e-4
 dpy = 1e-4
-
-# ref: https://ballen95.pythonanywhere.com/Week2-Notebook/
-#         maxwell_distribution(array_vitesse_m/s, masse_gaz(ici He), Température)                    
-maxwell = maxwell_distribution(np.linspace(0,4000,1000), 4/1000, T)
 
 #### CANEVAS DE FOND ####
 L = 1 # container is a cube L on a side
@@ -80,7 +62,7 @@ for i in range(Natoms):
     else: Atoms.append(simple_sphere(pos=vector(x,y,z), radius=Ratom, color=gray))
     apos.append(vec(x,y,z)) # liste de la position initiale de toutes les sphères
 
-    pavg = random_maxwell(maxwell)*mass
+    pavg = mass * maxwell.rvs(scale=sqrt(k * T / mass))
 
     phi = 2*pi*random() # direction aléatoire pour la quantité de mouvement
     px = pavg*cos(phi)  # quantité de mvt initiale selon l'équipartition
@@ -117,9 +99,17 @@ def checkCollisions():
                 hitlist.append([i,j])
     return hitlist
 
+
+liste_p_moyenne = []
+
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
-for i in range(1000):
+for i in range(2000):
     rate(300)
+
+    # Calculer les magnitudes des vecteurs
+    p_norm = [mag(vecteur) for vecteur in p]
+    pavg = np.mean(p_norm)
+    liste_p_moyenne.append(pavg) 
 
     #### DÉPLACE TOUTES LES SPHÈRES D'UN PAS SPATIAL deltax
     vitesse = []   # vitesse instantanée de chaque sphère
@@ -127,9 +117,9 @@ for i in range(1000):
     for i in range(Natoms):
         champE_uniforme = vector(dpx,dpy,0)
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
-        deltax.append(vitesse[i] * dt + champE_uniforme)   # différence avant pour calculer l'incrément de position
+        deltax.append(vitesse[i] * dt + champE_uniforme) # différence avant pour calculer l'incrément de position
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
-
+    # print(vitesse[0])
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):
         loc = apos[i]
@@ -143,6 +133,8 @@ for i in range(1000):
     #### LET'S FIND THESE COLLISIONS!!! ####
     hitlist = checkCollisions()
 
+    T = (pavg**2)/(3 * mass * k)
+    
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS ENTRE SPHÈRES ####
     for ij in hitlist:
         # définition de nouvelles variables pour chaque paire de sphères en collision
@@ -151,7 +143,7 @@ for i in range(1000):
 
         # Définir la collision selon le modèle de Drudes
         phi = 2*pi*random() # direction aléatoire pour la quantité de mouvement
-        pNorm = random_maxwell(maxwell)*mass
+        pNorm = mass * maxwell.rvs(scale=sqrt(k * T / mass))
         px = pNorm*cos(phi)
         py = pNorm*sin(phi)
 

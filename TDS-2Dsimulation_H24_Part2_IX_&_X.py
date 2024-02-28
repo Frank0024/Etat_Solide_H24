@@ -41,7 +41,7 @@ def acceletationChamp(pos):
     """
     k_c = 9e9 # Constante de Coulomb
     q_1 = -1.602e-19 # charge d'un électron
-    q_2 = 1e-13# charge du mur
+    q_2 = 1e-11# charge du mur
     x = pos.x
     return ( ( k_c * q_1 *q_2 )/((x-(L/2+Ratom))**2) ) * ( dt/mass )
 
@@ -129,8 +129,9 @@ for i in range(1000):
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
         # Ajout du champ E uniforme de module ajustable
         champ_E_uniforme = vector(acceletationChamp(apos[i]),0,0)
-        deltax.append(vitesse[i] * dt + champ_E_uniforme * dt) # différence avant pour calculer l'incrément de position
+        deltax.append(vitesse[i] * dt + champ_E_uniforme * dt) # Le champ E affecte le deltax
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
+        p[i] += (champ_E_uniforme*dt)*mass # On ajoute aussi l'effet du champ sur la quantité de mouvement
 
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):

@@ -69,13 +69,13 @@ for i in range(Natoms):
 # Génération des noyaux
 npos = []
 Noyaux = []
-steps = [0.5,0.3,0.1,-0.1,-0.3,-0.5]
+steps = [0.45,0.27,0.09,-0.09,-0.27,-0.45]
 for i, x in enumerate(steps):
     for j, y in enumerate(steps):
         Noyaux.append(simple_sphere(pos=vector(x,y,0), radius=0.03, color=color.green))
         npos.append(vec(x,y,0))
 
-steps = [0.4,0.2,0,-0.2,-0.4]
+steps = [0.36,0.18,0,-0.18,-0.36]
 for i, x in enumerate(steps):
     for j, y in enumerate(steps):
         Noyaux.append(simple_sphere(pos=vector(x,y,0), radius=0.03, color=color.green))
@@ -177,8 +177,8 @@ p_fit = exponential_fit(t_data, p0_fit, tau_fit)
 plt.subplot(2,1,1)
 plt.plot(t_data, liste_p_moyenne, label='p(t)', color='black')
 plt.plot(t_data, p_fit, label=f'Curve fit (τ ={(tau_fit * dt):.5f})', color='red', linestyle='--')
-plt.xlabel('Temps [10e-7 s]')
-plt.ylabel('p moyenne [kg m/s]')
+plt.xlabel('Temps (10e-7) [-]')
+plt.ylabel('p moyenne [-]')
 plt.title('p moyenne des électrons en fonction du temps')
 plt.legend()
 plt.grid(True)
@@ -187,8 +187,8 @@ plt.grid(True)
 plt.subplot(2,1,2)
 plt.plot(t_data, liste_p_electron, label='p(t)', color='black')
 plt.plot(t_data, (liste_p_electron[0] * np.exp(- t_data / tau_moyen)), label=f"Temps libre moyen de l'électron (τ ={(tau_moyen * dt):.5f})", color='blue', linestyle='--')
-plt.xlabel('Temps [10e-7 s]')
-plt.ylabel("p d'un électron [kg m/s]")
+plt.xlabel('Temps (10e-7) [-]')
+plt.ylabel("p d'un électron [-]")
 plt.title("p d'un électron en fonction du temps")
 plt.legend()
 plt.grid(True)

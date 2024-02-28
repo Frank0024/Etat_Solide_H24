@@ -30,7 +30,7 @@ Ratom = 0.01
 k = 1.4E-23 # Boltzmann constant
 T = 300 # around room temperature
 
-E = 0.2
+E = 0.1
 q = -1.602e-19
 
 #### CANEVAS DE FOND ####

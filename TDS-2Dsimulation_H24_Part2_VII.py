@@ -105,7 +105,7 @@ tau_mesure = []
 tickParticule = 1
 
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
-for i in range(2000):
+for i in range(500):
     rate(300)
 
     # Calculer les magnitudes des vecteurs
@@ -134,7 +134,6 @@ for i in range(2000):
 
     #### LET'S FIND THESE COLLISIONS!!! ####
     hitlist = checkCollisions()
-    T = (pavg**2)/(3 * mass * k)
     
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS ENTRE SPHÈRES ####
     for ij in hitlist:
@@ -162,9 +161,8 @@ for i in range(2000):
     tickParticule += 1
     
 tau_moyen = np.mean(tau_mesure)
-#print(liste_p_moyenne)
-print(liste_p_electron)
-print(tau_moyen)
+print(liste_p_moyenne)
+
 
 
 

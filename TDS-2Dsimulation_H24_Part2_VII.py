@@ -168,7 +168,7 @@ print(liste_p_moyenne)
 
 
 def exponential_fit(t, p0, tau):
-    return p0 * np.exp(-t / tau)
+    return p0 * np.exp(-t / tau) 
 
 # Curve fiting exponentielle
 t_data = np.arange(0,len(liste_p_moyenne), 1) 

@@ -146,7 +146,6 @@ for i in range(1000):
     #### LET'S FIND THESE COLLISIONS!!! ####
     hitlist = checkCollisions()
 
-    T = (pavg**2)/(3 * mass * k)
     
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS ENTRE SPHÈRES ####
     for ij in hitlist:

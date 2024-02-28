@@ -337,4 +337,4 @@ print(f"Moyenne = {avg}, Mode = {mode(v_x_all_normalized, axis=None, keepdims=Fa
       f" Médiane = {np.median(v_x_all_normalized)}, RMS = {rms}, STD = {sqrt(var)}")
 
 print("\n")
-print(p)
+print(vitesse)

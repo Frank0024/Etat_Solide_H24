@@ -20,23 +20,6 @@ from scipy.stats import maxwell
 from scipy.optimize import curve_fit
 
 
-# def maxwell_distribution(v,m,t):
-    # Génère une distribution de maxwell selon le script: https://ballen95.pythonanywhere.com/Week2-Notebook/
-#    data = []
-#    vx = []
-#    r = 8.31446261815324 # J / (mol * K)
-#    distribution = (4.*np.pi * ((m / (2 * np.pi * r * t))**1.5) * (v**2) * np.exp(- (m * v**2)/(2 * r * t)))
-#    distribution = (np.array(distribution)/np.amax(distribution))*(2**8)
-#    distribution = distribution.astype("uint16")
-#    for i, x in enumerate(v):
-#        data += [x]*distribution[i]
-#    return data
-
-#def random_maxwell(maxwell):
-    # Petit hic, je dois adapté l'ordre de grandeur pour que ça fonctionne, la distribution est défini par le gaz ET la température
-    # Retourne une valeur de vitesse aléatoire selon la distribution de maxwell préalablement choisie.
-#    return maxwell[rd.randint(0,len(maxwell)-1)]
-
 # Déclaration de variables influençant le temps d'exécution de la simulation
 Natoms = 200  # change this to have more or fewer atoms
 dt = 1E-7  # pas d'incrémentation temporel
@@ -46,10 +29,6 @@ mass = 9.109e-31 # Pour le choix de la distribution de maxwell
 Ratom = 0.01
 k = 1.4E-23 # Boltzmann constant
 T = 300 # around room temperature
-
-# ref: https://ballen95.pythonanywhere.com/Week2-Notebook/
-#         maxwell_distribution(array_vitesse_m/s, masse_gaz(ici He), Température)                    
-#Maxwell = maxwell_distribution(np.linspace(0,4000,1000), 4/1000, T)
 
 #### CANEVAS DE FOND ####
 L = 1 # container is a cube L on a side
@@ -120,6 +99,11 @@ def checkCollisions():
 liste_p_moyenne = []
 liste_p_electron = []
 
+atom_id = 1
+reset = False
+tau_mesure = []
+tickParticule = 1
+
 #### BOUCLE PRINCIPALE POUR L'ÉVOLUTION TEMPORELLE DE PAS dt ####
 for i in range(2000):
     rate(300)
@@ -128,7 +112,7 @@ for i in range(2000):
     p_norm = [mag(vecteur) for vecteur in p]
     pavg = np.mean(p_norm)
     liste_p_moyenne.append(pavg)
-    liste_p_electron.append(mag(p[0])) 
+    liste_p_electron.append(mag(p[0])) # qdm pour un seul électron
 
     #### DÉPLACE TOUTES LES SPHÈRES D'UN PAS SPATIAL deltax
     vitesse = []   # vitesse instantanée de chaque sphère
@@ -137,7 +121,7 @@ for i in range(2000):
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
         deltax.append(vitesse[i] * dt)   # différence avant pour calculer l'incrément de position
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
-    # print(vitesse[0])
+
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):
         loc = apos[i]
@@ -169,28 +153,40 @@ for i in range(2000):
         # Nouvelle position pour évité les doublons de collision
         apos[i] = vector(2*Ratom*cos(phi), 2*Ratom*sin(phi), 0) + npos[j]
 
+        if (i or j) == atom_id:
+            tau_mesure.append(tickParticule)
+            reset = True
+    if reset:
+        tickParticule = 0
+        reset = False
+    tickParticule += 1
+    
+tau_moyen = np.mean(tau_mesure)
+
 
 def exponential_fit(t, p0, tau):
     return p0 * np.exp(-t / tau)
 
-# Curve fiting exponetielle
+# Curve fiting exponentielle
 t_data = np.arange(0,len(liste_p_moyenne), 1) 
 popt, pcov = curve_fit(exponential_fit, t_data, liste_p_moyenne, p0=(liste_p_moyenne[0], 1.0))
 p0_fit, tau_fit = popt
 p_fit = exponential_fit(t_data, p0_fit, tau_fit)
 
-# Graphique
+# Graphique p(t) moyen
 plt.subplot(2,1,1)
 plt.plot(t_data, liste_p_moyenne, label='p(t)', color='black')
-plt.plot(t_data, p_fit, label=f'Fit exponentiel (τ ={(tau_fit * dt):.5f})', color='red', linestyle='--')
+plt.plot(t_data, p_fit, label=f'Curve fit (τ ={(tau_fit * dt):.5f})', color='red', linestyle='--')
 plt.xlabel('Temps [10e-7 s]')
 plt.ylabel('p moyenne [kg m/s]')
 plt.title('p moyenne des électrons en fonction du temps')
 plt.legend()
 plt.grid(True)
 
+# Graphique p(t) pour un seul électron
 plt.subplot(2,1,2)
 plt.plot(t_data, liste_p_electron, label='p(t)', color='black')
+plt.plot(t_data, (liste_p_electron[0] * np.exp(- t_data / tau_moyen)), label=f"Temps libre moyen de l'électron (τ ={(tau_moyen * dt):.5f})", color='blue', linestyle='--')
 plt.xlabel('Temps [10e-7 s]')
 plt.ylabel("p d'un électron [kg m/s]")
 plt.title("p d'un électron en fonction du temps")

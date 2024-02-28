@@ -161,7 +161,6 @@ for i in range(500):
     tickParticule += 1
     
 tau_moyen = np.mean(tau_mesure)
-print(liste_p_moyenne)
 
 
 
@@ -176,7 +175,8 @@ popt, pcov = curve_fit(exponential_fit, t_data, liste_p_moyenne, p0=(liste_p_moy
 p0_fit, tau_fit = popt
 p_fit = exponential_fit(t_data, p0_fit, tau_fit)
 
-
+print(liste_p_electron)
+print(tau_moyen)
 
 plt.figure(figsize=(12,7))
 # Graphique p(t) moyen

@@ -30,20 +30,8 @@ Ratom = 0.01
 k = 1.4E-23 # Boltzmann constant
 T = 300 # around room temperature
 
-# Composantes du champ uniforme (respecté pas plus haut que 1e-4 sinon parfois il y a des sorties du cadre)
-
-def acceletationChamp(pos):
-    """
-    Sachant que F = (k * q_1 *q_2 )/r^2 = m * a
-    où a = Delta_v/dt on obtient la vitesse à ajouté en plus à chaque dt selon:
-    Delta_v = ( ( k * q_1 *q_2 )/r^2 ) * ( dt/m )
-    return : la différence de vitesse qui, multipliée au dt donnera le déplacement supplémentaire causé par le champ
-    """
-    k_c = 9e9 # Constante de Coulomb
-    q_1 = -1.602e-19 # charge d'un électron
-    q_2 = 1e-11# charge du mur
-    x = pos.x
-    return ( ( k_c * q_1 *q_2 )/((x-(L/2+Ratom))**2) ) * ( dt/mass )
+E = 0.2
+q = -1.602e-19
 
 #### CANEVAS DE FOND ####
 L = 1 # container is a cube L on a side
@@ -128,10 +116,10 @@ for i in range(1000):
     for i in range(Natoms):
         vitesse.append(p[i]/mass)   # par définition de la quantité de nouvement pour chaque sphère
         # Ajout du champ E uniforme de module ajustable
-        champ_E_uniforme = vector(acceletationChamp(apos[i]),0,0)
-        deltax.append(vitesse[i] * dt + champ_E_uniforme * dt) # Le champ E affecte le deltax
+        dv = vector(E*q*dt/mass,0,0)
+        deltax.append(vitesse[i] * dt + dv * dt) # Le champ E affecte le deltax (dv*dt = deltax supplémentaire)
         Atoms[i].pos = apos[i] = apos[i] + deltax[i]  # nouvelle position de l'atome après l'incrément de temps dt
-        p[i] += (champ_E_uniforme*dt)*mass # On ajoute aussi l'effet du champ sur la quantité de mouvement
+        p[i] += dv*mass # On ajoute aussi l'effet du champ sur la quantité de mouvement
 
     #### CONSERVE LA QUANTITÉ DE MOUVEMENT AUX COLLISIONS AVEC LES PAROIS DE LA BOÎTE ####
     for i in range(Natoms):
@@ -171,3 +159,23 @@ for i in range(1000):
         Ys.append(i.y)
     meanPos.append((np.mean(Xs),np.mean(Ys)))
 print(meanPos)
+
+# Affichage
+fig, ax = plt.subplots(nrows=1, ncols=2)
+for i in ax:
+    i.set_xlabel("temps (tour de boucle)", fontsize=14)
+    i.set_ylim(-0.5,0.5)
+ax[0].set_ylabel("Position X (ua)", fontsize=14)
+ax[1].set_ylabel("Position Y (ua)", fontsize=14)
+
+
+t = np.linspace(0, len(meanPos)-1,len(meanPos))
+Xmean = []
+Ymean = []
+for i in meanPos:
+    Xmean.append(i[0])
+    Ymean.append(i[1])
+
+ax[0].plot(t, Xmean)
+ax[1].plot(t, Ymean)
+plt.show()

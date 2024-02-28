@@ -16,7 +16,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from scipy.stats import mode, norm
-from sigfig import round
+# from sigfig import round
 from scipy.optimize import curve_fit
 
 reset = False
@@ -106,7 +106,7 @@ def checkCollisions():
 
 
 # while True:
-for temps in range(20000):
+for temps in range(2000):
     rate(300)  # limite la vitesse de calcul de la simulation pour que l'animation soit visible à l'oeil humain!
     #### DÉPLACE TOUTES LES SPHÈRES D'UN PAS SPATIAL deltax
     vitesse = []   # vitesse instantanée de chaque sphère
@@ -243,7 +243,7 @@ for var in param_list:
     rounding_list = []
     for elem in var:
 
-        rounding_list.append(round(elem, 3))
+        rounding_list.append(np.round(elem, 3))
     param_list[i] = rounding_list
     i += 1
 
@@ -335,3 +335,6 @@ var_list = [np.mean(arr), mode(arr, axis=None, keepdims=False)[0], np.median(arr
 
 print(f"Moyenne = {avg}, Mode = {mode(v_x_all_normalized, axis=None, keepdims=False)[0]},"
       f" Médiane = {np.median(v_x_all_normalized)}, RMS = {rms}, STD = {sqrt(var)}")
+
+print("\n")
+print(p)

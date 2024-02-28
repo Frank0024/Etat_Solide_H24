@@ -335,6 +335,3 @@ var_list = [np.mean(arr), mode(arr, axis=None, keepdims=False)[0], np.median(arr
 
 print(f"Moyenne = {avg}, Mode = {mode(v_x_all_normalized, axis=None, keepdims=False)[0]},"
       f" Médiane = {np.median(v_x_all_normalized)}, RMS = {rms}, STD = {sqrt(var)}")
-
-print("\n")
-print(vitesse)
